@@ -16,7 +16,7 @@ app.use(express.static("./public"));
 
 //Mongo DB configuration
 const db = "mongodb://localhost:27017/tasks";
-mongoose.connect(db, { useNewUrlParser: true });
+mongoose.connect(db, { useNewUrlParser: true, useFindAndModify: false });
 
 mongoose.connection.on("connected", () => {
   console.log("connected to MongoDB");

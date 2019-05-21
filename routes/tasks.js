@@ -13,6 +13,42 @@ router.get("/", (req, res, next) => {
   });
 });
 
+router.get("/:id", (req, res) => {
+  let task_id = parseInt(req.params.id);
+  let query = { task_id: task_id };
+
+  Task.find(query, (err, data) => {
+    if (err) {
+      res.json({ success: false, message: "Error while getting records" });
+    } else {
+      if (data.length > 0) {
+        res.json({ success: true, data: data });
+      } else {
+        res.json({ success: false, message: "Task Not found" });
+      }
+    }
+  });
+});
+
+router.put("/:id", (req, res) => {
+  let task_id = parseInt(req.params.id);
+  let query = { task_id: task_id };
+
+  let taskObj = {
+    task_id: task_id,
+    parent: req.body.parent,
+    task: req.body.task,
+    priority: req.body.priority,
+    start_date: req.body.start_date,
+    end_date: req.body.end_date
+  };
+
+  Task.findOneAndUpdate(query, taskObj, (err, data) => {
+    if (err) return res.json({ success: false, message: "Task Not Found" });
+    res.json({ success: true, message: "Task saved successfully" });
+  });
+});
+
 router.post("/new", (req, res) => {
   Task.findOne()
     .sort("-task_id")
@@ -20,24 +56,25 @@ router.post("/new", (req, res) => {
       if (err) {
         return res.json({ success: false, message: "Task Not created" });
       } else {
+        // auto increment the task_id field
         if (data == null) {
           var task_id = 1;
         } else {
           var task_id = data.task_id + 1;
         }
-        let parent = req.body.parent;
-        let task = req.body.task;
-        let priority = req.body.priority;
-        let start_date = req.body.start_date;
-        let end_date = req.body.end_date;
+
+        // creating task object for inserting
         let taskObj = {
           task_id: task_id,
-          parent: parent,
-          task: task,
-          priority: priority,
-          start_date: start_date,
-          end_date: end_date
+          parent: req.body.parent,
+          task: req.body.task,
+          priority: req.body.priority,
+          start_date: req.body.start_date,
+          end_date: req.body.end_date,
+          is_completed: false
         };
+
+        // creating the task
         Task.create(taskObj, err => {
           if (err) {
             res.json({ success: false, message: "Task Not created" });
