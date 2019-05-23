@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const moment = require('moment');
 
 const Task = require("../models/task");
 
@@ -28,6 +29,20 @@ router.get("/:id", (req, res) => {
       }
     }
   });
+});
+
+router.put("/end/:id", (req, res) => {
+  let task_id = parseInt(req.params.id);
+  let query = { task_id: task_id };
+  
+  let today = moment().format("YYYY-MM-DD");
+  let updatedData = {is_completed: true, end_date: today};
+
+  Task.updateOne(query, updatedData, (err, data) => {
+    if (err) return res.json({ success: false, message: "Task Not Found" });
+    res.json({ success: true, message: "Task ended successfully" });
+  });
+
 });
 
 router.put("/:id", (req, res) => {
